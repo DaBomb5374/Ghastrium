@@ -5,7 +5,7 @@ Ghastrium is a simple browser based game where players hunt ghosts in a spooky, 
 
 ## Getting Started
 1. Clone the repository.
-2. Open 'https://dabomb5374.github.io/Ghastrium/' in a web browser.
+2. Open '(https://github.com/DaBomb5374/Ghastrium.git)' in a web browser.
 3. Enjoy!
 
 ## How to Play
