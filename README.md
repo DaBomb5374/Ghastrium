@@ -14,6 +14,7 @@ Ghastrium is a simple browser based game where players hunt ghosts in a spooky, 
 
 ## Technologies Used
 - JavaScript
+- HTML5
 
 ## License
 This project is licensed undeer the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
