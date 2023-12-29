@@ -40,23 +40,11 @@
             speed: 5
         };
 
-        const flashlight = {
-            battery: 100, // Initial battery level
-            maxdistance: 100,
-            damage: 10
-        };
+
         function drawGhost() {
             ctx.beginPath();
             ctx.arc(ghost.x, ghost.y, ghost.radius, 0, 2 * Math.PI);
             ctx.fillStyle = ghost.color;
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function drawFlashlight() {
-            ctx.beginPath();
-            ctx.arc(ghost.x, ghost.y, flashlight.maxDistance, 0, 2 * Math.PI);
-            ctx.fillStyle = 'rgba(255, 255, 0.2)';
             ctx.fill();
             ctx.closePath();
         }
@@ -77,14 +65,6 @@
                         if (keys.ArrowRight && ghost.x < canvas.width) {
                 ghost.x += ghost.speed;
             }
-
-            // Draw the Flashlight
-            drawFlashlight();
-
-            // Inflict damage if ghost is in flashlight range
-            if (isGHostInFlashlightRange()) {
-                inflictDamage();
-            }
             
             // Draw the ghost
             drawGhost();
@@ -92,28 +72,6 @@
             //request the next animation frame
             requestAnimationFrame(updateGameArea);
         }
-
-        function inflictDamage() {
-            // Reduce ghosts health by flashlight damage
-            ghost.health = (ghost.health || 100) - flashlight.damage;
-
-            // Consume battery
-            flashlight.battery -= 1;
-
-            // If battery is depleted, disable the flashlight
-            if (flashlight.battery <= 0) {
-                flashlight.battery = 0;
-            }
-        }
-
-        // Keyboard input handling
-        const keys = {};
-        window.addEventListener('keydown', (event) => {
-            keys[event.key] = true;
-        });
-
-        window.addEventListener('keyup', (event) => {
-            keys[event.key] = false;
         });
         
         // Start the game loop
