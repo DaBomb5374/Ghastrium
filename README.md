@@ -9,8 +9,8 @@ Ghastrium is a simple browser based game where players hunt ghosts in a spooky, 
 3. Enjoy!
 
 ## How to Play
--Move the player using the arrow keys
--Use the spacebar to shoot ghosts
+-Move the player using the arrow keys.
+-Use the spacebar to shine ghosts.
 
 ## Technologies Used
 - HTML5
