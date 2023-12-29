@@ -19,9 +19,9 @@
             display: block;
             height: 100%;
             width: 100%;
-            margin: 0 auto 
+            margin: 0 auto;
             background-color: #808080; /*  Set a background color for the canvas*/
-            border: 20px solid purple;
+            border: 20px solid black;
         }
     </style>
 </head>
@@ -53,19 +53,6 @@
         function updateGameArea() {
             // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (keys.ArrowUp && ghost.y > 0) {
-                ghost.y -= ghost.speed;
-            }
-            if (keys.ArrowDown && ghost.y < canvas.height) {
-                ghost.y += ghost.speed;
-            }
-            if (keys.ArrowLeft && ghost.x > 0) {
-                ghost.x -= ghost.speed;
-            }
-                        if (keys.ArrowRight && ghost.x < canvas.width) {
-                ghost.x += ghost.speed;
-            }
             
             // Draw the ghost
             drawGhost();
