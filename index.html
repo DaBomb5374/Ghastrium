@@ -18,7 +18,7 @@
         canvas {
             display: block;
             margin: 0 auto; */ Center the canvas horizontally */
-            background-color: #000 /*  Set a background color for the canvas*/
+            background-color: #345 /*  Set a background color for the canvas*/
         }
     </style>
 </head>
@@ -35,9 +35,14 @@
             y: 50,
             radius: 20,
             color: '#F00'
-            speed: 2
+            speed: 5
         };
-        
+
+        const flashlight = {
+            battery: 100, // Initial battery level
+            maxdistance: 100,
+            damage: 10
+        };
         function drawGhost() {
             ctx.beginPath();
             ctx.arc(ghost.x, ghost.y, ghost.radius, 0, 2 * Math.PI);
@@ -45,20 +50,69 @@
             ctx.fill();
             ctx.closePath();
         }
+
+        function drawFlashlight() {
+            ctx.beginPath();
+            ctx.arc(ghost.x, ghost.y, flashlight.maxDistance, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255, 255, 0.2)';
+            ctx.fill();
+            ctx.closePath();
+        }
         
         function updateGameArea() {
             // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (keys.ArrowUp && ghost.y > 0) {
+                ghost.y -= ghost.speed;
+            }
+            if (keys.ArrowDown && ghost.y < canvas.height) {
+                ghost.y += ghost.speed;
+            }
+            if (keys.ArrowLeft && ghost.x > 0) {
+                ghost.x -= ghost.speed;
+            }
+                        if (keys.ArrowRight && ghost.x < canvas.width) {
+                ghost.x += ghost.speed;
+            }
 
+            // Draw the Flashlight
+            drawFlashlight();
+
+            // Inflict damage if ghost is in flashlight range
+            if (isGHostInFlashlightRange()) {
+                inflictDamage();
+            }
+            
             // Draw the ghost
             drawGhost();
-            
-            // Move the ghost (for demo purposes)
-            ghost.x +=1;
             
             //request the next animation frame
             requestAnimationFrame(updateGameArea);
         }
+
+        function inflictDamage() {
+            // Reduce ghosts health by flashlight damage
+            ghost.health = (ghost.health || 100) - flashlight.damage;
+
+            // Consume battery
+            flashlight.battery -= 1;
+
+            // If battery is depleted, disable the flashlight
+            if (flashlight.battery <= 0 {
+                flashlight.battery = 0;
+            }
+        }
+
+        // Keyboard input handling
+        const keys = {};
+        window.addEventListener('keydown', (event) => {
+            keys[event.key] = true;
+        });
+
+        window.addEventListener('keyup', (event) => {
+            keys[event.key] = false;
+        });
         
         // Start the game loop
         updateGameArea();
