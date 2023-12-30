@@ -2,68 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghastrium</title>
     <style>
-        // Ensure the canvas takes up the full width and height of the screen //
-        body, html {
+        body {
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Remove any potential scrollbar */
-            height: 100%;
-            width: 100%;
+            overflow: hidden;
+            background-color: #808080;
         }
 
         canvas {
             display: block;
-            height: 100%;
             width: 100%;
-            margin: 0 auto;
-            background-color: #808080; /*  Set a background color for the canvas*/
-            border: 20px solid black;
+            height: 100%;
+            border: 15px solid black;
         }
     </style>
 </head>
 <body>
-   <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Ghost Object
-        const ghost = {
-            x: 50,
-            y: 50,
-            radius: 20,
-            color: '#F00',
-            speed: 5
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2
+            size: 30,
+            speed: 5,
+            health: 100
         };
 
+        const ghost = {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: 40,
+            speed: 2,
+            health: 50
+        };
+
+            const flashlight = {
+                range: 100,
+                damage: 10
+        };
+
+        const projectiles = [];
+
+        function drawPlayer() {
+            ctx.fillStyle = '#00F';
+            ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+        }
 
         function drawGhost() {
+            ctx.fillStyle = '#F00';
+            ctx.fillRect(ghost.x - ghost.size / 2, ghost.y - ghost.size / 2, ghost.size, ghost.size);
+        }
+
+        function drawFlashlight() {
             ctx.beginPath();
-            ctx.arc(ghost.x, ghost.y, ghost.radius, 0, 2 * Math.PI);
-            ctx.fillStyle = ghost.color;
-            ctx.fill();
+            ctx.arc(player.x, player.y, flashlight.range, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#FFFF00'; // Yellow
+            ctx.stroke();
             ctx.closePath();
         }
-        
+
+        function drawProjectiles() {
+            ctx.fillStyle = '#F00';
+            projectiles.forEach(projectile => {
+                ctx.fillRect(projectile.x - 5, projectile.y -5, 10, 10);
+            });
+        }
+
+        function checkCollision() {
+            const distance = Math.sqrt((player.x - ghost.x) ** 2 + (player.y - ghost.y) ** 2);
+            return distance < (player.size + ghost.size / 2;
+        }
+
+        function checkProjectileCollision() {
+            projectiles.forEach((projectile, index) => {
+                const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y - projectile.y) ** 2);
+                if (distance < player.size / 2) {
+                    // Player hit by projectile
+                    player.health -= 20;
+                    projectiles.splice(index, 1); // Remove the projectile
+                }
+            });
+        }
+
         function updateGameArea() {
-            // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw the ghost
+
             drawGhost();
-            
-            //request the next animation frame
+            drawPlayer();
+            drawFlashlight();
+            drawProjectiles();
+
+            if (checkCollision()) {
+                // Ghost is within range of the flashlight
+                ghost.health -= flashlight.damage;
+            }
+
+            // Move and shoot projectiles from the ghost
+            ghost.x += ghost.speed;
+            if (Math.random() < 0.02) { // Adjust the frequency of shooting
+                const angle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
+                const speed 5;
+                projectiles.push({
+                    x: ghost.x,
+                    y: ghost.y,
+                    dx: speed * Math.cos(angle),
+                    dy: speed * Math,sin(angle)
+                });
+            }
+
+            // Update projectile positions
+            projectiles.forEach(projectile => {
+                projectile.x += projectile.dx;
+                projectile.y += projectile.dy;
+            });
+
+            checkProjectileCollision();
+
             requestAnimationFrame(updateGameArea);
         }
-        });
-        
+
+        function movePlayer(event) {
+            const { key } = event;
+            if {key === 'ArrowUp' && player.y > playersize; / 2) {
+                player.y -= player.speed;
+            }else if (key === 'ArrowDown' && player.y < canvas.height - player.size / 2) {
+                  player.y += player.speed;
+            }else if (key === 'ArrowLeft' && player.x > player.size / 2) {
+                  player.x -= player.speed;
+            }else if (key === 'ArrowRight' && player.x < canvas.width - player.size / 2) {
+                  player.x += player.speed;
+            }
+        }
+
+        window.addEventListener('keydown', moveplayer);
+
         // Start the game loop
         updateGameArea();
+                
     </script>
 </body>
 </html>
