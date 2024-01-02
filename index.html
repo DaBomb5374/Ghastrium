@@ -294,11 +294,10 @@
         }
 
         function drawGameOverScreen() {
-            ctx.font = '40px Arial';
-            ctx.fillStyle = '#FFF';
+            ctx.font = '25px Chiller';
+            ctx.fillStyle = '#FF0000';
             ctx.textAlign = 'center';
             ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 50);
-            ctx.fillText(`Your Score: ${player.health}`, canvas.width / 2, canvas.height / 2);
             startButton.style.display = 'block';
             startButton.innerHTML = 'Retry';
             gameStarted = false;
