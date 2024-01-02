@@ -32,13 +32,14 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const startButton = document.getElementById('startButton');
-
+        
         const player = {
             x: canvas.width / 2,
             y: canvas.height / 2,
             size: 30,
             speed: 5,
-            health: 100
+            health: 100,
+            keys: {}  // Object to track pressed keys
         };
 
         const ghost = {
@@ -98,6 +99,8 @@
             drawPlayer();
             drawFriendlies();
 
+            movePlayer(); // Continuously move the player based on pressed keys
+
             requestAnimationFrame(updateGameArea);
         }
 
@@ -109,17 +112,22 @@
 
         startButton.addEventListener('click', startGame);
 
-        window.addEventListener('keydown', movePlayer);
+        // Event listeners for keydown and keyup to track pressed keys
+        window.addEventListener('keydown', (event) => player.keys[event.key] = true);
+        window.addEventListener('keyup', (event) => player.keys[event.key] = false);
 
-        function movePlayer(event) {
-            const { key } = event;
-            if (key === 'ArrowUp' && player.y > player.size / 2) {
+        // Continuously move the player based on pressed keys
+        function movePlayer() {
+            if (player.keys['ArrowUp'] && player.y > player.size / 2) {
                 player.y -= player.speed;
-            } else if (key === 'ArrowDown' && player.y < canvas.height - player.size / 2) {
+            }
+            if (player.keys['ArrowDown'] && player.y < canvas.height - player.size / 2) {
                 player.y += player.speed;
-            } else if (key === 'ArrowLeft' && player.x > player.size / 2) {
+            }
+            if (player.keys['ArrowLeft'] && player.x > player.size / 2) {
                 player.x -= player.speed;
-            } else if (key === 'ArrowRight' && player.x < canvas.width - player.size / 2) {
+            }
+            if (player.keys['ArrowRight'] && player.x < canvas.width - player.size / 2) {
                 player.x += player.speed;
             }
         }
