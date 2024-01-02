@@ -62,6 +62,13 @@
             // Add more friendly ghosts and their messages as needed
         ];
 
+        // Alchemist
+        const alchemist = {
+            x: 200,
+            y: 200,
+            message: "Greetings, traveler! In need of potent potions?"
+        };
+
         function drawPlayer() {
             ctx.fillStyle = '#00F';
             ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
@@ -83,6 +90,10 @@
             friendlies.forEach((friendly) => {
                 ctx.fillRect(friendly.x - 15, friendly.y - 15, 30, 30);
             });
+
+            // Draw Alchemist
+            ctx.fillStyle = '#FFFF00'; // Yellow color for the alchemist ghost
+            ctx.fillRect(alchemist.x - 15, alchemist.y - 15, 30, 30);
         }
 
         function drawTitleScreen() {
@@ -107,6 +118,7 @@
             drawProjectiles(); // Draw projectiles
 
             movePlayer(); // Continuously move the player based on pressed keys
+            handleGhostBehavior(); // Move ghost and shoot projectiles
             moveProjectiles(); // Move projectiles continuously
             checkProjectileCollision(); // Check for collisions with projectiles
 
@@ -144,7 +156,7 @@
         // Move projectiles continuously
         function moveProjectiles() {
             projectiles.forEach(projectile => {
-                projectile            .x += projectile.dx;
+                projectile.x += projectile.dx;
                 projectile.y += projectile.dy;
             });
         }
@@ -190,11 +202,12 @@
             }
         }
 
-        function moveProjectiles() {
-            projectiles.forEach(projectile => {
-                projectile.x += projectile.dx;
-                projectile.y += projectile.dy;
-            });
+        // Handle Alchemist interaction
+        function handleAlchemistInteraction() {
+            const distance = Math.sqrt((player.x - alchemist.x) ** 2 + (player.y - alchemist.y) ** 2);
+            if (distance < player.size / 2) {
+                alert(alchemist.message); // Display Alchemist's message
+            }
         }
 
         function updateGameArea() {
@@ -214,9 +227,12 @@
             handleGhostBehavior(); // Move ghost and shoot projectiles
             moveProjectiles(); // Move projectiles continuously
             checkProjectileCollision(); // Check for collisions with projectiles
+            handleAlchemistInteraction(); // Check for interaction with the alchemist
 
             requestAnimationFrame(updateGameArea);
         }
     </script>
 </body>
 </html>
+
+
