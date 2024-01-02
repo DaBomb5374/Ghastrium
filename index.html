@@ -90,12 +90,59 @@ function drawGhost(x, y, color) {
 function updateGameArea() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    drawGhost();
-    drawPlayer();
+// In your updateGameArea function, call checkFriendlyCollisions() where appropriate.
+
+    // Move and shoot projectiles from the ghost
+    ghost.x += ghost.speed;
+    if (Math.random() < 0.02) { // Adjust the frequency of shooting
+        const angle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
+        const speed = 5;
+        projectiles.push({
+            x: ghost.x,
+            y: ghost.y,
+            dx: speed * Math.cos(angle),
+            dy: speed * Math.sin(angle)
+        });
+    }
+
+    // Update projectile positions
+    projectiles.forEach(projectile => {
+        projectile.x += projectile.dx;
+        projectile.y += projectile.dy;
+    });
+
+    checkProjectileCollision();
 
     requestAnimationFrame(updateGameArea);
 }
+  
+    drawGhost();
+    drawPlayer();
+    drawFlashlight();
+    drawProjectiles();
 
+    if (checkCollision()) {
+        // Ghost is within range of the player's flashlight
+        ghost.health -= flashlight.damage;
+    }
+
+  function checkFriendlyCollisions() {
+    Friendlies.forEach(friendly => {
+        if (
+            player.x < friendly.x + 30 &&
+            player.x + 30 > friendly.x &&
+            player.y < friendly.y + 30 &&
+            player.y + 30 > friendly.y
+        ) {
+            // Player collided with a friendly ghost
+            displayFriendlyDialogue();
+        }
+    });
+}
+
+    requestAnimationFrame(updateGameArea);
+}
+        
 function movePlayer(event) {
     const { key } = event;
     if (key === 'ArrowUp' && player.y > player.size / 2) {
