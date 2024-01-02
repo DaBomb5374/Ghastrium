@@ -6,6 +6,11 @@
     <title>Ghastrium</title>
     <style>
         /* Add your CSS styles here */
+        body {
+            margin: 0;
+            overflow: hidden; /* Disable scrolling */
+        }
+
         canvas {
             display: block;
             margin: auto;
@@ -30,39 +35,32 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: #0F0;
-            width: 100px;
+            width: 200px;
             height: 20px;
+            background-color: #222;
+            border: 1px solid #FFF;
+            overflow: hidden;
         }
 
-        #gameOverScreen {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
+        #healthFill {
+            height: 100%;
+            background-color: #0F0;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <button id="startButton">Start Game</button>
-    <div id="healthBar"></div>
-    <div id="gameOverScreen">Game Over<br>Your Score: <span id="score">0</span></div>
+    <div id="healthBar">
+        <div id="healthFill"></div>
+    </div>
 
     <script>
         let gameStarted = false;
-        let gameOver = false;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const startButton = document.getElementById('startButton');
-        const healthBar = document.getElementById('healthBar');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const scoreSpan = document.getElementById('score');
+        const healthFill = document.getElementById('healthFill');
 
         const player = {
             x: canvas.width / 2,
@@ -131,16 +129,15 @@
             startButton.style.display = 'block';
         }
 
+        function drawHealthBar() {
+            healthFill.style.width = `${player.health}%`;
+        }
+
         function updateGameArea() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (!gameStarted) {
                 drawTitleScreen();
-                return;
-            }
-
-            if (gameOver) {
-                drawGameOverScreen();
                 return;
             }
 
@@ -155,7 +152,6 @@
             moveProjectiles(); // Move projectiles continuously
             checkProjectileCollision(); // Check for collisions with projectiles
             handleAlchemistInteraction(); // Check for interaction with the alchemist
-            updateHealthBar(); // Update health bar
 
             requestAnimationFrame(updateGameArea);
         }
@@ -168,11 +164,9 @@
 
         startButton.addEventListener('click', startGame);
 
-        // Event listeners for keydown and keyup to track pressed keys
         window.addEventListener('keydown', (event) => player.keys[event.key] = true);
         window.addEventListener('keyup', (event) => player.keys[event.key] = false);
 
-        // Continuously move the player based on pressed keys
         function movePlayer() {
             if (player.keys['ArrowUp'] && player.y > player.size / 2) {
                 player.y -= player.speed;
@@ -188,7 +182,6 @@
             }
         }
 
-        // Move projectiles continuously
         function moveProjectiles() {
             projectiles.forEach(projectile => {
                 projectile.x += projectile.dx;
@@ -196,7 +189,6 @@
             });
         }
 
-        // Draw projectiles
         function drawProjectiles() {
             ctx.fillStyle = '#F00';
             projectiles.forEach(projectile => {
@@ -204,25 +196,16 @@
             });
         }
 
-        // Check for collisions with projectiles
         function checkProjectileCollision() {
             projectiles.forEach((projectile, index) => {
-                const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y            .y - projectile.y) ** 2);
+                const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y - projectile.y) ** 2);
                 if (distance < player.size / 2) {
-                    // Player hit by projectile
                     player.health -= 10; // Adjust damage accordingly
                     projectiles.splice(index, 1); // Remove the projectile
                 }
             });
-
-            // Check for player's health reaching zero
-            if (player.health <= 0) {
-                gameOver = true;
-                drawGameOverScreen();
-            }
         }
 
-        // Function to create projectiles shot by the ghost
         function createProjectile() {
             const angle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
             const speed = 5;
@@ -234,7 +217,6 @@
             });
         }
 
-        // Function to handle ghost behavior
         function handleGhostBehavior() {
             ghost.x += ghost.speed;
 
@@ -243,7 +225,6 @@
             }
         }
 
-        // Handle Alchemist interaction
         function handleAlchemistInteraction() {
             const distance = Math.sqrt((player.x - alchemist.x) ** 2 + (player.y - alchemist.y) ** 2);
             if (distance < player.size / 2) {
@@ -251,21 +232,112 @@
             }
         }
 
-        // Draw health bar
-        function drawHealthBar() {
-            healthBar.style.width = `${player.health}px`;
-        }
-
-        // Update health bar
-        function updateHealthBar() {
-            healthBar.style.width = `${player.health}px`;
-        }
-
-        // Draw game over screen
         function drawGameOverScreen() {
-            gameOverScreen.style.display = 'block';
-            scoreSpan.textContent = player.health; // Display the remaining health as the score
+            ctx.font = '40px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 50);
+            ctx.fillText(`Your Score: ${player.health}`, canvas.width / 2, canvas.height / 2);
+            startButton.style.display = 'block';
+            startButton.innerHTML = 'Retry';
+            gameStarted = false;
+            player.health = 100; // Reset player health
         }
+
+        function updateGameArea() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameStarted) {
+                drawTitleScreen();
+                return;
+            }
+
+            drawGhost(ghost.x, ghost.y, '#F00');
+            drawPlayer();
+            drawFriendlies();
+            drawProjectiles(); // Draw projectiles
+            drawHealthBar(); // Draw health bar
+
+            movePlayer(); // Continuously move the player based on pressed keys
+            handleGhostBehavior(); // Move ghost and shoot projectiles
+            moveProjectiles(); // Move projectiles continuously
+            checkProjectileCollision(); // Check for collisions with projectiles
+            handleAlchemistInteraction(); // Check for interaction with the alchemist
+
+            if (player.health <= 0) {
+                drawGameOverScreen();
+            } else {
+                requestAnimationFrame(updateGameArea);
+            }
+        }
+
+        startButton.addEventListener('click', startGame);
+
+        window.addEventListener('keydown', (event) => player.keys[event.key] = true);
+        window.addEventListener('keyup', (event) => player.keys[event.key] = false);
     </script>
 </body>
 </html>
+        function handleGhostBehavior() {
+            ghost.x += ghost.speed;
+
+            if (Math.random() < 0.02) { // Adjust the frequency of shooting
+                createProjectile();
+            }
+        }
+
+        function handleAlchemistInteraction() {
+            const distance = Math.sqrt((player.x - alchemist.x) ** 2 + (player.y - alchemist.y) ** 2);
+            if (distance < player.size / 2) {
+                alert(alchemist.message); // Display Alchemist's message
+            }
+        }
+
+        function drawGameOverScreen() {
+            ctx.font = '40px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 50);
+            ctx.fillText(`Your Score: ${player.health}`, canvas.width / 2, canvas.height / 2);
+            startButton.style.display = 'block';
+            startButton.innerHTML = 'Retry';
+            gameStarted = false;
+            player.health = 100; // Reset player health
+        }
+
+        function updateGameArea() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameStarted) {
+                drawTitleScreen();
+                return;
+            }
+
+            drawGhost(ghost.x, ghost.y, '#F00');
+            drawPlayer();
+            drawFriendlies();
+            drawProjectiles(); // Draw projectiles
+            drawHealthBar(); // Draw health bar
+
+            movePlayer(); // Continuously move the player based on pressed keys
+            handleGhostBehavior(); // Move ghost and shoot projectiles
+            moveProjectiles(); // Move projectiles continuously
+            checkProjectileCollision(); // Check for collisions with projectiles
+            handleAlchemistInteraction(); // Check for interaction with the alchemist
+
+            if (player.health <= 0) {
+                drawGameOverScreen();
+            } else {
+                requestAnimationFrame(updateGameArea);
+            }
+        }
+
+        startButton.addEventListener('click', startGame);
+
+        window.addEventListener('keydown', (event) => player.keys[event.key] = true);
+        window.addEventListener('keyup', (event) => player.keys[event.key] = false);
+    </script>
+</body>
+</html>
+
+
