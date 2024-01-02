@@ -50,6 +50,8 @@
             health: 50
         };
 
+        const projectiles = []; // Array to store projectiles
+
         const friendlies = [
             { x: 100, y: 100, message: "Hello, brave adventurer! Need any supplies?" },
             { x: 300, y: 300, message: "Welcome! I have potions for sale." }
@@ -98,8 +100,11 @@
             drawGhost(ghost.x, ghost.y, '#F00');
             drawPlayer();
             drawFriendlies();
+            drawProjectiles(); // Draw projectiles
 
             movePlayer(); // Continuously move the player based on pressed keys
+            moveProjectiles(); // Move projectiles continuously
+            checkProjectileCollision(); // Check for collisions with projectiles
 
             requestAnimationFrame(updateGameArea);
         }
@@ -130,6 +135,83 @@
             if (player.keys['ArrowRight'] && player.x < canvas.width - player.size / 2) {
                 player.x += player.speed;
             }
+        }
+
+        // Move projectiles continuously
+        function moveProjectiles() {
+            projectiles.forEach(projectile => {
+                projectile            .x += projectile.dx;
+                projectile.y += projectile.dy;
+            });
+        }
+
+        // Draw projectiles
+        function drawProjectiles() {
+            ctx.fillStyle = '#F00';
+            projectiles.forEach(projectile => {
+                ctx.fillRect(projectile.x - 5, projectile.y - 5, 10, 10);
+            });
+        }
+
+        // Check for collisions with projectiles
+        function checkProjectileCollision() {
+            projectiles.forEach((projectile, index) => {
+                const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y - projectile.y) ** 2);
+                if (distance < player.size / 2) {
+                    // Player hit by projectile
+                    player.health -= 10; // Adjust damage accordingly
+                    projectiles.splice(index, 1); // Remove the projectile
+                }
+            });
+        }
+
+        // Function to create projectiles shot by the ghost
+        function createProjectile() {
+            const angle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
+            const speed = 5;
+            projectiles.push({
+                x: ghost.x,
+                y: ghost.y,
+                dx: speed * Math.cos(angle),
+                dy: speed * Math.sin(angle)
+            });
+        }
+
+        // Function to handle ghost behavior
+        function handleGhostBehavior() {
+            ghost.x += ghost.speed;
+
+            if (Math.random() < 0.02) { // Adjust the frequency of shooting
+                createProjectile();
+            }
+        }
+
+        function moveProjectiles() {
+            projectiles.forEach(projectile => {
+                projectile.x += projectile.dx;
+                projectile.y += projectile.dy;
+            });
+        }
+
+        function updateGameArea() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameStarted) {
+                drawTitleScreen();
+                return;
+            }
+
+            drawGhost(ghost.x, ghost.y, '#F00');
+            drawPlayer();
+            drawFriendlies();
+            drawProjectiles(); // Draw projectiles
+
+            movePlayer(); // Continuously move the player based on pressed keys
+            handleGhostBehavior(); // Move ghost and shoot projectiles
+            moveProjectiles(); // Move projectiles continuously
+            checkProjectileCollision(); // Check for collisions with projectiles
+
+            requestAnimationFrame(updateGameArea);
         }
     </script>
 </body>
