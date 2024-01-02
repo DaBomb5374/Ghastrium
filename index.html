@@ -6,15 +6,30 @@
     <title>Ghost Hunter Game</title>
     <style>
         /* Add your CSS styles here */
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: #000;
+        }
+
+        button {
+            display: block;
+            margin: auto;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <button id="startButton">Start Game</button>
 
     <script>
         let gameStarted = false;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
 
         const player = {
             x: canvas.width / 2,
@@ -62,11 +77,11 @@
         }
 
         function drawTitleScreen() {
-            drawGhost(50, canvas.height / 2, 'red');
-            drawGhost(150, canvas.height / 2, 'blue');
-            drawGhost(250, canvas.height / 2, 'green');
-            drawGhost(350, canvas.height / 2, 'orange');
-            drawGhost(450, canvas.height / 2, 'purple');
+            ctx.font = '40px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.textAlign = 'center';
+            ctx.fillText('Ghost Hunter Game', canvas.width / 2, canvas.height / 2 - 50);
+            startButton.style.display = 'block';
         }
 
         function updateGameArea() {
@@ -84,6 +99,14 @@
             requestAnimationFrame(updateGameArea);
         }
 
+        function startGame() {
+            gameStarted = true;
+            startButton.style.display = 'none';
+            requestAnimationFrame(updateGameArea);
+        }
+
+        startButton.addEventListener('click', startGame);
+
         window.addEventListener('keydown', movePlayer);
 
         function movePlayer(event) {
@@ -98,8 +121,6 @@
                 player.x += player.speed;
             }
         }
-
-        requestAnimationFrame(updateGameArea);
     </script>
 </body>
 </html>
