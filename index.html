@@ -25,18 +25,45 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        #healthBar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #0F0;
+            width: 100px;
+            height: 20px;
+        }
+
+        #gameOverScreen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <button id="startButton">Start Game</button>
+    <div id="healthBar"></div>
+    <div id="gameOverScreen">Game Over<br>Your Score: <span id="score">0</span></div>
 
     <script>
         let gameStarted = false;
+        let gameOver = false;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const startButton = document.getElementById('startButton');
-        
+        const healthBar = document.getElementById('healthBar');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const scoreSpan = document.getElementById('score');
+
         const player = {
             x: canvas.width / 2,
             y: canvas.height / 2,
@@ -112,15 +139,23 @@
                 return;
             }
 
+            if (gameOver) {
+                drawGameOverScreen();
+                return;
+            }
+
             drawGhost(ghost.x, ghost.y, '#F00');
             drawPlayer();
             drawFriendlies();
             drawProjectiles(); // Draw projectiles
+            drawHealthBar(); // Draw health bar
 
             movePlayer(); // Continuously move the player based on pressed keys
             handleGhostBehavior(); // Move ghost and shoot projectiles
             moveProjectiles(); // Move projectiles continuously
             checkProjectileCollision(); // Check for collisions with projectiles
+            handleAlchemistInteraction(); // Check for interaction with the alchemist
+            updateHealthBar(); // Update health bar
 
             requestAnimationFrame(updateGameArea);
         }
@@ -172,13 +207,19 @@
         // Check for collisions with projectiles
         function checkProjectileCollision() {
             projectiles.forEach((projectile, index) => {
-                const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y - projectile.y) ** 2);
+                const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y            .y - projectile.y) ** 2);
                 if (distance < player.size / 2) {
                     // Player hit by projectile
                     player.health -= 10; // Adjust damage accordingly
                     projectiles.splice(index, 1); // Remove the projectile
                 }
             });
+
+            // Check for player's health reaching zero
+            if (player.health <= 0) {
+                gameOver = true;
+                drawGameOverScreen();
+            }
         }
 
         // Function to create projectiles shot by the ghost
@@ -210,29 +251,21 @@
             }
         }
 
-        function updateGameArea() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw health bar
+        function drawHealthBar() {
+            healthBar.style.width = `${player.health}px`;
+        }
 
-            if (!gameStarted) {
-                drawTitleScreen();
-                return;
-            }
+        // Update health bar
+        function updateHealthBar() {
+            healthBar.style.width = `${player.health}px`;
+        }
 
-            drawGhost(ghost.x, ghost.y, '#F00');
-            drawPlayer();
-            drawFriendlies();
-            drawProjectiles(); // Draw projectiles
-
-            movePlayer(); // Continuously move the player based on pressed keys
-            handleGhostBehavior(); // Move ghost and shoot projectiles
-            moveProjectiles(); // Move projectiles continuously
-            checkProjectileCollision(); // Check for collisions with projectiles
-            handleAlchemistInteraction(); // Check for interaction with the alchemist
-
-            requestAnimationFrame(updateGameArea);
+        // Draw game over screen
+        function drawGameOverScreen() {
+            gameOverScreen.style.display = 'block';
+            scoreSpan.textContent = player.health; // Display the remaining health as the score
         }
     </script>
 </body>
 </html>
-
-
