@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Hunter Game</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
 
+    <script>
+        let gameStarted = false;
+        const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    size: 30,
+    speed: 5,
+    health: 100
+};
+
+const ghost = {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: 40,
+    speed: 2,
+    health: 50
+};
+
+function drawPlayer() {
+    ctx.fillStyle = '#00F'; // Blue color for the player square
+    ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+    ctx.fillStyle = '#FFF'; // White color for clothes
+    ctx.fillRect(player.x - player.size / 2 + 5, player.y - player.size / 2 + 5, player.size - 10, player.size - 10);
+}
+
+
+function drawGhost() {
+    ctx.fillStyle = '#F00';
+    ctx.fillRect(ghost.x - ghost.size / 2, ghost.y - ghost.size / 2, ghost.size, ghost.size);
+}
+
+      const friendlies = [
+    { x: 100, y: 100, message: "Hello, brave adventurer! Need any supplies?" },
+    { x: 300, y: 300, message: "Welcome! I have potions for sale." },
+    // Add more friendly ghosts and their messages as needed
+];
+
+function drawFriendlies() {
+    ctx.fillStyle = '#FFFFFF'; // Green color for friendly ghosts
+    friendlies.forEach((friendly) => {
+        ctx.fillRect(friendly.x - 15, friendly.y - 15, 30, 30);
+    });
+}
+
+function checkFriendlyInteraction() {
+    friendlies.forEach((friendly) => {
+        const distance = Math.sqrt((player.x - friendly.x) ** 2 + (player.y - friendly.y) ** 2);
+        if (distance < player.size / 2 + 15) {
+            alert(friendly.message); // Display a simple alert for now
+            // You can add more interaction logic or open a shop menu here
+        }
+    });
+}
+
+function drawTitleScreen() {
+
+    // Customize the ghost illustrations
+    drawGhost(50, canvas.height / 2, 'red');
+    drawGhost(150, canvas.height / 2, 'blue');
+    drawGhost(250, canvas.height / 2, 'green');
+    drawGhost(350, canvas.height / 2, 'orange');
+    drawGhost(450, canvas.height / 2, 'purple');
+}
+
+function drawGhost(x, y, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, 2 * Math.PI);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function updateGameArea() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawGhost();
+    drawPlayer();
+
+    requestAnimationFrame(updateGameArea);
+}
+
+function movePlayer(event) {
+    const { key } = event;
+    if (key === 'ArrowUp' && player.y > player.size / 2) {
+        player.y -= player.speed;
+    } else if (key === 'ArrowDown' && player.y < canvas.height - player.size / 2) {
+        player.y += player.speed;
+    } else if (key === 'ArrowLeft' && player.x > player.size / 2) {
+        player.x -= player.speed;
+    } else if (key === 'ArrowRight' && player.x < canvas.width - player.size / 2) {
+        player.x += player.speed;
+    }
+}
+
+window.addEventListener('keydown', movePlayer);
+
+function drawFlashlight() {
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, flashlight.range, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#FFFF00'; // Yellow
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function drawProjectiles() {
+    ctx.fillStyle = '#F00';
+    projectiles.forEach(projectile => {
+        ctx.fillRect(projectile.x - 5, projectile.y - 5, 10, 10);
+    });
+}
+
+function checkCollision() {
+    const distance = Math.sqrt((player.x - ghost.x) ** 2 + (player.y - ghost.y) ** 2);
+    return distance < (player.size + ghost.size) / 2;
+}
+
+function checkProjectileCollision() {
+    projectiles.forEach((projectile, index) => {
+        const distance = Math.sqrt((player.x - projectile.x) ** 2 + (player.y - projectile.y) ** 2);
+        if (distance < player.size / 2) {
+            // Player hit by projectile
+            player.health -= 10; // Adjust damage accordingly
+            projectiles.splice(index, 1); // Remove the projectile
+        }
+    });
+}
+
+function updateGameArea() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+// In your updateGameArea function, call checkFriendlyCollisions() where appropriate.
+
+    // Move and shoot projectiles from the ghost
+    ghost.x += ghost.speed;
+    if (Math.random() < 0.02) { // Adjust the frequency of shooting
+        const angle = Math.atan2(player.y - ghost.y, player.x - ghost.x);
+        const speed = 5;
+        projectiles.push({
+            x: ghost.x,
+            y: ghost.y,
+            dx: speed * Math.cos(angle),
+            dy: speed * Math.sin(angle)
+        });
+    }
+
+    // Update projectile positions
+    projectiles.forEach(projectile => {
+        projectile.x += projectile.dx;
+        projectile.y += projectile.dy;
+    });
+
+    checkProjectileCollision();
+
+    requestAnimationFrame(updateGameArea);
+}
+  
+    drawGhost();
+    drawPlayer();
+    drawFlashlight();
+    drawProjectiles();
+
+    if (checkCollision()) {
+        // Ghost is within range of the player's flashlight
+        ghost.health -= flashlight.damage;
+    }
+
+  function checkFriendlyCollisions() {
+    Friendlies.forEach(friendly => {
+        if (
+            player.x < friendly.x + 30 &&
+            player.x + 30 > friendly.x &&
+            player.y < friendly.y + 30 &&
+            player.y + 30 > friendly.y
+        ) {
+            // Player collided with a friendly ghost
+            displayFriendlyDialogue();
+        }
+    });
+}
+
+    requestAnimationFrame(updateGameArea);
+}
+    </script>
+</body>
+</html>
