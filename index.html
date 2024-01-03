@@ -234,7 +234,7 @@
 
         function drawGameOverScreen() {
             ctx.font = '25px Creeper';
-            ctx.fillStyle = '#FF0000';
+            ctx.fillStyle = '#0F0';
             ctx.textAlign = 'center';
             ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 50);
             startButton.style.display = 'block';
@@ -290,17 +290,6 @@
             if (distance < player.size / 2) {
                 alert(alchemist.message); // Display Alchemist's message
             }
-        }
-
-        function drawGameOverScreen() {
-            ctx.font = '25px Chiller';
-            ctx.fillStyle = '#0F0';
-            ctx.textAlign = 'center';
-            ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 50);
-            startButton.style.display = 'block';
-            startButton.innerHTML = 'Retry';
-            gameStarted = false;
-            player.health = 100; // Reset player health
         }
 
         function updateGameArea() {
